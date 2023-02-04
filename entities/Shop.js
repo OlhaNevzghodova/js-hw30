@@ -3,6 +3,9 @@ export class Shop {
     goodsContainer = document.querySelector('.list');
     infoContainer = document.querySelector('.info__container');
     container = document.querySelector('.container');
+    formContainer = document.querySelector('.form-container');
+    // deliveryInfo = document.querySelector('.delivery-info');
+
 
     constructor(config) {
         this.config = config;
@@ -38,6 +41,7 @@ export class Shop {
                 this.clearGoods();
                 this.clearInfo();
                 this.notification();
+                this.showForm();
             }
         });
     };
@@ -80,7 +84,7 @@ export class Shop {
         });
     };
 
-    renderInfo({title, id, price, description, img}) {
+    renderInfo({title, price, description, img}) {
         this.clearInfo();
         const info = document.createElement('div');
         info.innerHTML = `
@@ -104,4 +108,67 @@ export class Shop {
             popup.remove();
         }, 2000);
     };
-}
+
+    showForm() {
+        this.formContainer.classList.add('form-container_styles');
+        const form = document.createElement('form');
+        form.innerHTML = `
+        <p class="form-container__title">Заповніть, будь ласка, дані про доставку:</p>
+                <label for="name" class="input__title">Прізвище, ім'я та по-батькові: (обов'язково)</label>
+                <input name="name" type="text" id="name" required>
+                <div></div>
+                <label for="city">Місто:</label>
+                <select name="city" id="city">
+                    <option value="1">Київ</option>
+                    <option value="2">Харків</option>
+                    <option value="3">Дніпро</option>
+                    <option value="4">Одеса</option>
+                    <option value="5">Львів</option>
+                    <option value="6">Луцьк</option>
+                    <option value="7">Миколаїв</option>
+                    <option value="8">Херсон</option>
+                </select>
+                <label for="stock" class="input__title">Номер складу нової пошти: (обов'язково)</label>
+                <input name="stock" type="number" id="stock" required>
+                <p class="input__title">Оберіть спосіб оплати: (обов'язково)</p>
+                <label>
+                    <input name="payment" type="radio" value="Післяплата" checked>
+                    Післяплата
+                </label>
+                <label>
+                    <input name="payment" type="radio" value="Післяплата">
+                    Оплата карткою при замовленні
+                </label>
+                <div></div>
+                <label for="quantity" class="input__title">Введіть кількість обраного товару: (обов'язково)</label>
+                <input name="quantity" type="number" id="quantity" required>
+                <div></div>
+                <p class="input__title">Залиште коментар: (необов'язково)</p>
+                <textarea name="comment" cols="50" rows="7"></textarea>
+                <button class="form__button">Готово</button>`
+        this.formContainer.append(form);
+        form.onchange = (({target}) => {
+            const { required, value } = target;
+            const message = target.nextElementSibling;
+            console.log(target)
+            if (required && value === '') {
+                message.classList.add('message');
+                target.classList.add('invalid');
+                message.innerText = "Це поле є обов'язковим";
+                return;
+            }
+            message.innerText = '';
+            target.classList.remove('invalid');
+        })
+
+    };
+
+    // showDeliveryInfo( {title, price} ) {
+    //     const inputQuantity = document.createElement('quantity');
+    //     const inputCity = document.getElementById('city');
+    //     const inputStock = document.getElementById('stock')
+    //     this.deliveryInfo.innerText = `Ви замовлення ${title} на сумму ${+inputQuantity.value * price} буде відправлено у місто ${inputCity.value} на поштове відділення №${inputStock.value}
+    //     Дякуємо за замовлення! Очікуйте дзвінок менеджера для підтвердження протягом години.`;
+    // }
+
+};
