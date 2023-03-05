@@ -4,7 +4,8 @@ export class Shop {
     infoContainer = document.querySelector('.info__container');
     container = document.querySelector('.container');
     formContainer = document.querySelector('.form-container');
-    // deliveryInfo = document.querySelector('.delivery-info');
+    deliveryInfo = document.querySelector('.delivery-info');
+    selectedProduct;
 
 
     constructor(config) {
@@ -32,7 +33,6 @@ export class Shop {
                 const {id} = listElem.dataset;
                 const good = this.config.goods.find((item) => item.id === +id);
                 this.renderInfo(good);
-
             }
         });
 
@@ -79,12 +79,12 @@ export class Shop {
                 <img src="${img}" alt="${title}">
             </div>
             <p class="list__item__title">${title}</p>
-            <p class="list__item__price">${price}</p>`
+            <p class="list__item__price">${price}₴</p>`
             this.goodsContainer.append(listItem);
         });
     };
 
-    renderInfo({title, price, description, img}) {
+    renderInfo({title, price, description, img, id}) {
         this.clearInfo();
         const info = document.createElement('div');
         info.innerHTML = `
@@ -92,11 +92,12 @@ export class Shop {
         <div class="info__container__item">
             <p class="info__container__title">${title}</p>
             <p class="info__container__description">${description}</p>
-            <p class="info__container__price">${price}</p>
+            <p class="info__container__price">${price}₴</p>
             <button class="info__container__button">
                 В кошик
             </button>`
         this.infoContainer.append(info);
+        this.selectedProduct = id;
     };
 
     notification() {
@@ -148,7 +149,7 @@ export class Shop {
                 <button class="form__button">Готово</button>`
         this.formContainer.append(form);
         form.onchange = (({target}) => {
-            const { required, value } = target;
+            const {required, value} = target;
             const message = target.nextElementSibling;
             console.log(target)
             if (required && value === '') {
@@ -160,15 +161,27 @@ export class Shop {
             message.innerText = '';
             target.classList.remove('invalid');
         })
+        form.addEventListener('click', (event) => {
+            if (event.target.matches('button')) {
+                event.preventDefault();
+                const good = this.config.goods.find((item) => item.id === +this.selectedProduct);
+                if (form.checkValidity()) {
+                    this.showDeliveryInfo(good);
+                    this.formContainer.innerHTML = '';
+                    this.formContainer.classList.remove('form-container_styles')
+                }
+            }
+        });
 
     };
 
-    // showDeliveryInfo( {title, price} ) {
-    //     const inputQuantity = document.createElement('quantity');
-    //     const inputCity = document.getElementById('city');
-    //     const inputStock = document.getElementById('stock')
-    //     this.deliveryInfo.innerText = `Ви замовлення ${title} на сумму ${+inputQuantity.value * price} буде відправлено у місто ${inputCity.value} на поштове відділення №${inputStock.value}
-    //     Дякуємо за замовлення! Очікуйте дзвінок менеджера для підтвердження протягом години.`;
-    // }
+    showDeliveryInfo(info) {
+        const inputQuantity = document.getElementById('quantity');
+        const inputCity = document.querySelector('#city > option:checked').innerHTML;
+        const inputStock = document.getElementById('stock');
+        console.log(this.selectedProduct, info, inputQuantity)
+        this.deliveryInfo.innerText = `Ви замовили ${info.title} на сумму ${(+info.price) * (+inputQuantity.value)}₴ буде відправлено у місто ${inputCity} на поштове відділення №${inputStock.value}
+        Дякуємо за замовлення! Очікуйте дзвінок менеджера для підтвердження протягом години.`;
+    }
 
 };
